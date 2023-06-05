@@ -1,0 +1,43 @@
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class AmazonScraper {
+
+    public static void main(String[] args) {
+        String searchKeyword = "juegos";
+        String outputFile = "productos.csv";
+
+        try {
+            // Realizar la solicitud HTTP a la página de búsqueda de Amazon
+            String url = "https://www.amazon.com/s?k=" + searchKeyword;
+            Document doc = Jsoup.connect(url).get();
+
+            // Obtener los elementos de los productos en la página de resultados
+            Elements productElements = doc.select("div[data-component-type='s-search-result']");
+
+            // Crear el archivo de salida
+            BufferedWriter writer = new BufferedWriter(new FileWriter(outputFile));
+
+            // Iterar sobre los elementos de los productos y extraer la información necesaria
+            for (Element productElement : productElements) {
+                String title = productElement.select("span.a-text-normal").text();
+                String price = productElement.select("span.a-offscreen").text();
+                
+                // Escribir la información del producto en el archivo CSV
+                writer.write(title + "," + price + "\n");
+            }
+
+            // Cerrar el archivo de salida
+            writer.close();
+
+            System.out.println("La búsqueda se ha completado correctamente. Los productos se han guardado en " + outputFile);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
